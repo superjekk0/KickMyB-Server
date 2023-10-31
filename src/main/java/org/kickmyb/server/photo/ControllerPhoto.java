@@ -30,11 +30,20 @@ public class ControllerPhoto {
     @Autowired private ServiceTask serviceTask;
 
     @DeleteMapping("/api/task/hard/{id}")
-    public @ResponseBody String delete(@PathVariable long id) {
+    public @ResponseBody String hardDelete(@PathVariable long id) {
         System.out.println("KICKB SERVER : Delete task " + id);
         ConfigHTTP.attenteArticifielle();
         MUser user = currentUser();
-        serviceTask.delete(id, user);
+        serviceTask.hardDelete(id, user);
+        return "";
+    }
+
+    @DeleteMapping("/api/task/soft/{id}")
+    public @ResponseBody String softDelete(@PathVariable long id) {
+        System.out.println("KICKB SERVER : Delete task " + id);
+        ConfigHTTP.attenteArticifielle();
+        MUser user = currentUser();
+        serviceTask.softDelete(id, user);
         return "";
     }
 

@@ -1,5 +1,6 @@
 package org.kickmyb.server.task;
 
+import org.joda.time.DateTime;
 import org.kickmyb.server.photo.MPhoto;
 
 import javax.persistence.*;
@@ -17,6 +18,7 @@ public class MTask {
     public Long id;
     public Date creationDate;
     public Date deadline;
+    public Date deleteDate;
 
 
     @Convert(converter = AttributeEncryptor.class)  // TODO exemple stupide, servirait plutôt pour NAS ou numero carte crédit

@@ -1,6 +1,8 @@
 package org.kickmyb.server.task;
 
 
+import org.joda.time.DateTime;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -19,5 +21,6 @@ public class MProgressEvent {
     public int resultPercentage;
     public boolean completed;
     public Date timestamp;
+    public Date deleteDate;
 
 }
