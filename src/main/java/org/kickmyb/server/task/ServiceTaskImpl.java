@@ -3,6 +3,7 @@ package org.kickmyb.server.task;
 import org.joda.time.DateTime;
 import org.kickmyb.server.account.MUser;
 import org.kickmyb.server.account.MUserRepository;
+import org.kickmyb.server.photo.MPhotoRepository;
 import org.kickmyb.transfer.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,8 @@ public class ServiceTaskImpl implements ServiceTask {
     @Autowired
     MUserRepository repoUser;
     @Autowired MTaskRepository repo;
+    @Autowired
+    MPhotoRepository repoPhoto;
     @Autowired MProgressEventRepository repoProgressEvent;
 
     private int percentage(Date start, Date current, Date end){
@@ -151,6 +154,19 @@ public class ServiceTaskImpl implements ServiceTask {
             res.add(r);
         }
         return res;
+    }
+
+    @Override
+    @Transactional
+    public void delete(long id, MUser user) {
+        MTask element = repo.findById(id).get();
+        user.tasks.remove(element);
+        repoUser.save(user);
+        if(element.photo != null) {
+            repoProgressEvent.deleteAll(element.events);
+            repoPhoto.delete(element.photo);
+        }
+        repo.delete(element);
     }
 
     @Override

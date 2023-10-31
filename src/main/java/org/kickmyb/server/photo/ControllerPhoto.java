@@ -29,6 +29,15 @@ public class ControllerPhoto {
     @Autowired private ServicePhoto servicePhoto;
     @Autowired private ServiceTask serviceTask;
 
+    @DeleteMapping("/api/task/hard/{id}")
+    public @ResponseBody String delete(@PathVariable long id) {
+        System.out.println("KICKB SERVER : Delete task " + id);
+        ConfigHTTP.attenteArticifielle();
+        MUser user = currentUser();
+        serviceTask.delete(id, user);
+        return "";
+    }
+
     @PostMapping("/file")
     public ResponseEntity<String> up(@RequestParam("file") MultipartFile file, @RequestParam("taskID") Long taskID) throws IOException {
         System.out.println("PHOTO : upload request " + file.getContentType());
