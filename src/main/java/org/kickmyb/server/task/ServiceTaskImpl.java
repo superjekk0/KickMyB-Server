@@ -21,13 +21,13 @@ public class ServiceTaskImpl implements ServiceTask {
     @Autowired MTaskRepository repo;
     @Autowired MProgressEventRepository repoProgressEvent;
 
-    private double percentage(Date start, Date current, Date end){
-        //if (current.after(end)) return 100.0;
+    private int percentage(Date start, Date current, Date end){
+        if (current.after(end)) return 100;
         long total = end.getTime() - start.getTime();
         long spent = current.getTime() - start.getTime();
         double percentage =  100.0 * spent / total;
         // TODO si end est avant start c'est tout cassé.
-        return Math.max(percentage, 0 );
+        return Math.max((int) percentage, 0 );
     }
 
     @Override
@@ -141,7 +141,7 @@ public class ServiceTaskImpl implements ServiceTask {
             r.id = t.id;
             r.percentageDone = percentageDone(t);
             r.deadline = t.deadline;
-            r.percentageTimeSpent = (int) percentage(t.creationDate, new Date(), t.deadline);
+            r.percentageTimeSpent = percentage(t.creationDate, new Date(), t.deadline);
             r.name = t.name;
             if(t.photo != null) {
                 r.photoId = t.photo.id;
@@ -160,7 +160,7 @@ public class ServiceTaskImpl implements ServiceTask {
         response.name = element.name;
         response.id = element.id;
         // calcul le temps écoulé en pourcentage
-        response.percentageTimeSpent = (int) percentage(element.creationDate, new Date(), element.deadline);
+        response.percentageTimeSpent = percentage(element.creationDate, new Date(), element.deadline);
         // aller chercher le dernier événement de progrès
         response.percentageDone = percentageDone(element);
         response.deadline = element.deadline;
