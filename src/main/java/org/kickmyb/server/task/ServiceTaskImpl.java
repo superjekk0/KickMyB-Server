@@ -22,7 +22,7 @@ public class ServiceTaskImpl implements ServiceTask {
     @Autowired MProgressEventRepository repoProgressEvent;
 
     private double percentage(Date start, Date current, Date end){
-        if (current.after(end)) return 100.0;
+        //if (current.after(end)) return 100.0;
         long total = end.getTime() - start.getTime();
         long spent = current.getTime() - start.getTime();
         double percentage =  100.0 * spent / total;
