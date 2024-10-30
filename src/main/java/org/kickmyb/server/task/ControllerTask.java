@@ -57,6 +57,12 @@ public class ControllerTask {
         return serviceTask.detail(id, user);
     }
 
+    @PostMapping("/api/delete/{id}")
+    public @ResponseBody String delete(@PathVariable long id){
+        serviceTask.deleteTaks(id, currentUser());
+        return "";
+    }
+
     /**
      * Créer une page qui affiche tous les utilisateurs et les titres des tâches.
      */
