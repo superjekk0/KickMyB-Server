@@ -2,8 +2,10 @@ package org.kickmyb.server.task;
 
 import org.kickmyb.server.account.MUser;
 import org.kickmyb.transfer.*;
+import org.springframework.beans.InvalidPropertyException;
 
 
+import java.security.InvalidParameterException;
 import java.util.List;
 
 public interface ServiceTask {
@@ -19,6 +21,7 @@ public interface ServiceTask {
     List<HomeItemResponse> home(Long userID);
     TaskDetailPhotoResponse detailPhoto(Long id, MUser user);
     List<HomeItemPhotoResponse> homePhoto(Long userID);
+    void deleteTaks(Long id, MUser user) throws NullPointerException, InvalidParameterException;
 
     // Potential web demo for JS injection
     String index();
