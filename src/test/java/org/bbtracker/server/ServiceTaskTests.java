@@ -1,16 +1,16 @@
 package org.bbtracker.server;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.kickmyb.server.ServerApplication;
-import org.kickmyb.server.account.BadCredentialsException;
 import org.kickmyb.server.account.MUser;
 import org.kickmyb.server.account.MUserRepository;
-import org.kickmyb.server.account.ServiceAccount;
+import org.kickmyb.server.task.MTask;
 import org.kickmyb.server.task.ServiceTask;
 import org.kickmyb.transfer.AddTaskRequest;
-import org.kickmyb.transfer.SignupRequest;
+import org.kickmyb.transfer.HomeItemResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +18,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.security.InvalidParameterException;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
@@ -114,4 +116,87 @@ class ServiceTaskTests {
             assertEquals(ServiceTask.Existing.class, e.getClass());
         }
     }
+    @Test
+    void testDeleteTaskNotValid() throws InvalidParameterException {
+        MUser u = new MUser();
+        u.username = "M. Test";
+        u.password = passwordEncoder.encode("Passw0rd!");
+        userRepository.saveAndFlush(u);
+
+        AddTaskRequest atr = new AddTaskRequest();
+        atr.name = "Bonne tâche";
+        atr.deadline = Date.from(new Date().toInstant().plusSeconds(3600));
+        try{
+            serviceTask.deleteTask(-1L,u.id);
+            Assert.fail("Le id n'est pas valide");
+        }catch (InvalidParameterException e){
+
+        }
+    }
+    @Test
+    void testDeleteTaskValid() throws InvalidParameterException {
+        MUser u = new MUser();
+        u.username = "M. Test";
+        u.password = passwordEncoder.encode("Passw0rd!");
+        userRepository.saveAndFlush(u);
+
+        AddTaskRequest atr = new AddTaskRequest();
+        atr.name = "Bonne tâche";
+        atr.deadline = Date.from(new Date().toInstant().plusSeconds(3600));
+        try {
+            serviceTask.addOne(atr,u);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        List<HomeItemResponse> liste = serviceTask.home(u.id);
+
+
+        try{
+            serviceTask.deleteTask(liste.get(0).id,u.id);
+        }catch (Exception e){
+            Assert.fail("Il ne devrait pas avoir d'exception");
+
+        }
+    }
+    @Test
+    void testDeleteTaskForbidden() throws ServiceTask.Empty, ServiceTask.TooShort, ServiceTask.Existing {
+        MUser mrTest = new MUser();
+        mrTest.username = "M. Test";
+        mrTest.password = passwordEncoder.encode("Passw0rd!");
+        userRepository.saveAndFlush(mrTest);
+
+        AddTaskRequest taskRequest = new AddTaskRequest();
+        taskRequest.name = "test";
+        taskRequest.deadline = Date.from(new Date().toInstant().plusSeconds(3600));
+
+        serviceTask.addOne(taskRequest, mrTest);
+        MTask task = mrTest.tasks.get(0);
+
+        MUser mmeTest = new MUser();
+        mrTest.username = "Mme Test";
+        mrTest.password = passwordEncoder.encode("Passw0rd!");
+        userRepository.saveAndFlush(mmeTest);
+        try {
+            serviceTask.deleteTask(task.id, mmeTest.id);
+            Assert.fail("Il devrait être impossible pour Mme Test de supprimer la tâche");
+        } catch (Exception e) {
+            Assert.assertEquals(InvalidParameterException.class, e.getClass());
+            //Assert.fail("Le tache n'appartient pas a se user");
+        }
+    }
+    @Test
+    void testDeleteTaskDontExist() {
+        MUser u = new MUser();
+        u.username = "M. Test";
+        u.password = passwordEncoder.encode("Passw0rd!");
+        userRepository.saveAndFlush(u);
+
+        try {
+            serviceTask.deleteTask(0L,u.id);
+            Assert.fail("Cette tâche n'existe pas");
+        } catch (Exception e) {
+            Assert.assertEquals(InvalidParameterException.class, e.getClass());
+        }
+    }
+
 }

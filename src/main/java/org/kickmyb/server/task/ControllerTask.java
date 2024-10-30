@@ -59,7 +59,7 @@ public class ControllerTask {
 
     @PostMapping("/api/delete/{id}")
     public @ResponseBody String delete(@PathVariable long id){
-        serviceTask.deleteTaks(id, currentUser());
+        serviceTask.deleteTask(id, currentUser().id);
         return "";
     }
 

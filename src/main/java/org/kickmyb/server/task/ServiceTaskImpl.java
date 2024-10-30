@@ -3,7 +3,6 @@ package org.kickmyb.server.task;
 import org.joda.time.DateTime;
 import org.kickmyb.server.account.MUser;
 import org.kickmyb.server.account.MUserRepository;
-import org.kickmyb.server.photo.MPhoto;
 import org.kickmyb.server.photo.MPhotoRepository;
 import org.kickmyb.transfer.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +10,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.InvalidParameterException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Transactional
@@ -97,25 +93,27 @@ public class ServiceTaskImpl implements ServiceTask {
     }
 
     @Override
-    public void deleteTaks(Long id, MUser user) throws NullPointerException, InvalidParameterException {
+    public void deleteTask(Long id, Long userId) throws InvalidParameterException {
+        MUser user = repoUser.findById(userId).get();
         Optional<MTask> tacheAChercher = repo.findById(id);
         if (!tacheAChercher.isPresent()){
             throw new InvalidParameterException("Tâche introuvable");
         }
 
         MTask tache = tacheAChercher.get();
-        if (user == null){
-            throw new NullPointerException();
-        }
+//        if (userId == null){
+//            throw new NullPointerException();
+//        }
 
-        if (!user.tasks.contains(tache)){
+        if (user.tasks.stream().noneMatch(t -> Objects.equals(t.id, tache.id))){
             throw new InvalidParameterException("Cette tâche ne vous appartient pas");
         }
 
-        Optional<MPhoto> photoAChercher = photoRepository.findByTask(tache);
-        photoAChercher.ifPresent(mPhoto -> photoRepository.delete(mPhoto));
 
-        repo.delete(tache);
+//        repo.delete(tache);
+        user.tasks.removeIf(t -> Objects.equals(t.id, id));
+        repoUser.saveAndFlush(user);
+        repo.deleteById(tache.id);
     }
 
     @Override
