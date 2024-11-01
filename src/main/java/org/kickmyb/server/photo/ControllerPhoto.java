@@ -45,7 +45,7 @@ public class ControllerPhoto {
         ConfigHTTP.attenteArticifielle();
         MPhoto pic = servicePhoto.getFile(id);
         if (maxWidth == null) { // no resizing
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(pic.contentType)).body(pic.blob);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/" + pic.contentType)).body(pic.blob);
         } else {
             ByteArrayInputStream bais = new ByteArrayInputStream(pic.blob);
             BufferedImage bi = ImageIO.read(bais);
