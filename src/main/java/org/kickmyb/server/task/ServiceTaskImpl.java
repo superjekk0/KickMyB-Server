@@ -101,17 +101,20 @@ public class ServiceTaskImpl implements ServiceTask {
         }
 
         MTask tache = tacheAChercher.get();
-//        if (userId == null){
-//            throw new NullPointerException();
-//        }
 
         if (user.tasks.stream().noneMatch(t -> Objects.equals(t.id, tache.id))){
             throw new InvalidParameterException("Cette tâche ne vous appartient pas");
         }
 
+        MTask task = user.tasks.stream().filter(t -> t.id == id).findFirst().get();
+        if (task.photo != null){
+            photoRepository.delete(task.photo);
+            task.photo = null;
+            repo.save(task);
+        }
 
-//        repo.delete(tache);
         user.tasks.removeIf(t -> Objects.equals(t.id, id));
+
         repoUser.saveAndFlush(user);
         repo.deleteById(tache.id);
     }
