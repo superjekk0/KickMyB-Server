@@ -4,6 +4,7 @@ import org.kickmyb.server.account.MUser;
 import org.kickmyb.transfer.*;
 
 
+import java.security.InvalidParameterException;
 import java.util.List;
 
 public interface ServiceTask {
@@ -19,6 +20,7 @@ public interface ServiceTask {
     List<HomeItemResponse> home(Long userID);
     TaskDetailPhotoResponse detailPhoto(Long id, MUser user);
     List<HomeItemPhotoResponse> homePhoto(Long userID);
+    void deleteTask(Long id, Long userId) throws InvalidParameterException;
 
     // Potential web demo for JS injection
     String index();

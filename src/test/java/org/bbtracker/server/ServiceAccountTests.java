@@ -39,9 +39,6 @@ class ServiceAccountTests {
 					serviceAccount.signup(req);
 					serviceAccount.signup(req);
 		}, "NumberFormatException was expected");
-
-
-
 	}
 
 }

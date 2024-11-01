@@ -3,14 +3,14 @@ package org.kickmyb.server.task;
 import org.joda.time.DateTime;
 import org.kickmyb.server.account.MUser;
 import org.kickmyb.server.account.MUserRepository;
+import org.kickmyb.server.photo.MPhotoRepository;
 import org.kickmyb.transfer.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.security.InvalidParameterException;
+import java.util.*;
 
 @Component
 @Transactional
@@ -20,6 +20,7 @@ public class ServiceTaskImpl implements ServiceTask {
     MUserRepository repoUser;
     @Autowired MTaskRepository repo;
     @Autowired MProgressEventRepository repoProgressEvent;
+    @Autowired MPhotoRepository photoRepository;
 
     private int percentage(Date start, Date current, Date end){
         if (current.after(end)) return 100;
@@ -89,6 +90,33 @@ public class ServiceTaskImpl implements ServiceTask {
         repoProgressEvent.save(pe);
         element.events.add(pe);
         repo.save(element);
+    }
+
+    @Override
+    public void deleteTask(Long id, Long userId) throws InvalidParameterException {
+        MUser user = repoUser.findById(userId).get();
+        Optional<MTask> tacheAChercher = repo.findById(id);
+        if (!tacheAChercher.isPresent()){
+            throw new InvalidParameterException("Tâche introuvable");
+        }
+
+        MTask tache = tacheAChercher.get();
+
+        if (user.tasks.stream().noneMatch(t -> Objects.equals(t.id, tache.id))){
+            throw new InvalidParameterException("Cette tâche ne vous appartient pas");
+        }
+
+        MTask task = user.tasks.stream().filter(t -> t.id == id).findFirst().get();
+        if (task.photo != null){
+            photoRepository.delete(task.photo);
+            task.photo = null;
+            repo.save(task);
+        }
+
+        user.tasks.removeIf(t -> Objects.equals(t.id, id));
+
+        repoUser.saveAndFlush(user);
+        repo.deleteById(tache.id);
     }
 
     @Override
