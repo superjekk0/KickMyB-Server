@@ -28,7 +28,7 @@ public class ServicePhoto {
         // throw an exception here to show that transactional protects against delete but not store
         MPhoto photo = new MPhoto();
         photo.blob = file.getBytes();
-        photo.contentType = file.getContentType();
+        photo.contentType = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf('.') + 1);
         photo.task = task;
 
         photo = repoPics.save(photo);

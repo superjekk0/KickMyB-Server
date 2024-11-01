@@ -45,16 +45,16 @@ public class ControllerPhoto {
         ConfigHTTP.attenteArticifielle();
         MPhoto pic = servicePhoto.getFile(id);
         if (maxWidth == null) { // no resizing
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(pic.blob);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType(pic.contentType)).body(pic.blob);
         } else {
             ByteArrayInputStream bais = new ByteArrayInputStream(pic.blob);
             BufferedImage bi = ImageIO.read(bais);
             BufferedImage resized = Scalr.resize(bi, Scalr.Method.ULTRA_QUALITY, maxWidth);
 
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ImageIO.write(resized, "jpg", baos);
+            ImageIO.write(resized, pic.contentType, baos);
             byte[] bytes = baos.toByteArray();
-            return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(bytes);
+            return ResponseEntity.ok().contentType(MediaType.parseMediaType("image/" + pic.contentType)).body(bytes);
         }
     }
 
